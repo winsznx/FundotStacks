@@ -1,5 +1,6 @@
 ;; FundotStacks - NFT Rewards Contract
-;; SIP-009 compliant NFT implementation for backer rewards
+;; SIP-009 compliant NFT rewards for campaign backers
+;; clarity-version: 4
 
 ;; Constants
 (define-constant contract-owner tx-sender)

@@ -1,5 +1,6 @@
 ;; FundotStacks - Milestone Manager Contract
 ;; Manages milestone-based fund releases for campaigns
+;; clarity-version: 4
 
 ;; Constants
 (define-constant err-not-found (err u201))

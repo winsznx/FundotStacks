@@ -1,5 +1,6 @@
 ;; FundotStacks - Campaign Core Contract
 ;; Main contract for campaign creation, funding, and lifecycle management
+;; clarity-version: 4
 
 ;; Constants
 (define-constant contract-owner tx-sender)

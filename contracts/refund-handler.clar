@@ -1,5 +1,6 @@
 ;; FundotStacks - Refund Handler Contract
 ;; Manages automatic refund processing for failed or cancelled campaigns
+;; clarity-version: 4
 
 ;; Constants
 (define-constant err-not-found (err u301))
