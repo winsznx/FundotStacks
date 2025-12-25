@@ -34,7 +34,9 @@ export function CampaignForm({ onSuccess }) {
     const onSubmit = async (data) => {
         try {
             const result = await submitTransaction(createCampaign, data, stxAddress);
-            setSuccessTxId(result.tx_id);
+            // Safely access txId - it might be in different properties
+            const txId = result?.txId || result?.tx_id || result?.txid || 'pending';
+            setSuccessTxId(txId);
             reset();
             if (onSuccess) onSuccess(result);
         } catch (err) {

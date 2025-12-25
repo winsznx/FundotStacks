@@ -6,8 +6,9 @@
 import { callReadOnlyFunction, cvToJSON, uintCV, principalCV } from '@stacks/transactions';
 import { getStacksNetwork, API_URL } from './stacks-client.js';
 
-const CONTRACT_ADDRESS = import.meta.env.VITE_CONTRACT_DEPLOYER_ADDRESS;
-const CAMPAIGN_CORE = import.meta.env.VITE_CAMPAIGN_CORE_CONTRACT;
+// Parse contract address from full identifier (e.g., "ST123.contract-name")
+const CAMPAIGN_CORE_FULL = import.meta.env.VITE_CAMPAIGN_CORE_ADDRESS || '';
+const [CONTRACT_ADDRESS, CAMPAIGN_CORE] = CAMPAIGN_CORE_FULL.split('.');
 
 /**
  * Get campaign details by ID
@@ -87,7 +88,7 @@ export async function getTotalCampaigns() {
         const result = await callReadOnlyFunction({
             contractAddress: CONTRACT_ADDRESS,
             contractName: CAMPAIGN_CORE,
-            functionName: 'get-total-campaigns',
+            functionName: 'get-campaign-count',
             functionArgs: [],
             network: getStacksNetwork(),
             senderAddress: CONTRACT_ADDRESS
@@ -127,24 +128,4 @@ export async function getAllCampaigns() {
     }
 }
 
-/**
- * Check if campaign is still active
- */
-export async function isCampaignActive(campaignId) {
-    try {
-        const result = await callReadOnlyFunction({
-            contractAddress: CONTRACT_ADDRESS,
-            contractName: CAMPAIGN_CORE,
-            functionName: 'is-campaign-active',
-            functionArgs: [uintCV(BigInt(campaignId))],
-            network: getStacksNetwork(),
-            senderAddress: CONTRACT_ADDRESS
-        });
 
-        const jsonResult = cvToJSON(result);
-        return jsonResult.value.value === true;
-    } catch (error) {
-        console.error('Error checking campaign status:', error);
-        return false;
-    }
-}

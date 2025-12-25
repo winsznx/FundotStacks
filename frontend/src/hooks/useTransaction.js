@@ -17,7 +17,16 @@ export function useTransaction() {
             setError(null);
 
             const result = await txFunction(...args);
-            const transactionId = result.txId;
+            // Safely extract transaction ID from different possible properties
+            const transactionId = result?.txId || result?.tx_id || result?.txid;
+
+            if (!transactionId) {
+                console.warn('No transaction ID found in result:', result);
+                // Return the result anyway - transaction might still be successful
+                setStatus('success');
+                return result;
+            }
+
             setTxId(transactionId);
             setStatus('confirming');
 

@@ -15,8 +15,9 @@ import {
 } from '@stacks/transactions';
 import { getStacksNetwork } from './stacks-client.js';
 
-const CONTRACT_ADDRESS = import.meta.env.VITE_CONTRACT_DEPLOYER_ADDRESS;
-const CAMPAIGN_CORE = import.meta.env.VITE_CAMPAIGN_CORE_CONTRACT;
+// Parse contract address from full identifier (e.g., "ST123.contract-name")
+const CAMPAIGN_CORE_FULL = import.meta.env.VITE_CAMPAIGN_CORE_ADDRESS || '';
+const [CONTRACT_ADDRESS, CAMPAIGN_CORE] = CAMPAIGN_CORE_FULL.split('.');
 
 /**
  * Create a new campaign
@@ -41,7 +42,7 @@ export async function createCampaign(campaignData, userAddress) {
         postConditionMode: PostConditionMode.Deny,
         postConditions: [],
         onFinish: (data) => {
-            console.log('Campaign created:', data.txId);
+            console.log('Campaign created:', data);
             return data;
         },
         onCancel: () => {
@@ -82,7 +83,7 @@ export async function fundCampaign(campaignId, amount, userAddress) {
         postConditionMode: PostConditionMode.Deny,
         postConditions,
         onFinish: (data) => {
-            console.log('Funding successful:', data.txId);
+            console.log('Funding successful:', data);
             return data;
         },
         onCancel: () => {
@@ -94,9 +95,9 @@ export async function fundCampaign(campaignId, amount, userAddress) {
 }
 
 /**
- * Finalize campaign and release funds
+ * Complete campaign (mark as completed - funds already with creator)
  */
-export async function finalizeCampaign(campaignId) {
+export async function completeCampaign(campaignId) {
     const functionArgs = [
         uintCV(BigInt(campaignId))
     ];
@@ -104,13 +105,13 @@ export async function finalizeCampaign(campaignId) {
     const txOptions = {
         contractAddress: CONTRACT_ADDRESS,
         contractName: CAMPAIGN_CORE,
-        functionName: 'finalize-campaign',
+        functionName: 'complete-campaign',
         functionArgs,
         network: getStacksNetwork(),
         postConditionMode: PostConditionMode.Deny,
         postConditions: [],
         onFinish: (data) => {
-            console.log('Campaign finalized:', data.txId);
+            console.log('Campaign completed:', data);
             return data;
         },
         onCancel: () => {
@@ -138,7 +139,7 @@ export async function cancelCampaign(campaignId) {
         postConditionMode: PostConditionMode.Deny,
         postConditions: [],
         onFinish: (data) => {
-            console.log('Campaign cancelled:', data.txId);
+            console.log('Campaign cancelled:', data);
             return data;
         },
         onCancel: () => {
