@@ -1,25 +1,36 @@
 [project]
 name = "fundotstacks"
-description = "Decentralized crowdfunding platform on Stacks blockchain"
+description = "Decentralized crowdfunding platform on Stacks"
 authors = []
 telemetry = false
-cache_dir = "./.cache"
+cache_dir = ".cache"
+requirements = []
+boot_contracts = []
 
 [contracts.campaign-core]
 path = "contracts/campaign-core.clar"
-epoch = "3.0"
+clarity_version = 4
+epoch = "3.3"
+
+[contracts.campaign-core-v2]
+path = "contracts/campaign-core-v2.clar"
+clarity_version = 4
+epoch = "3.3"
 
 [contracts.milestone-manager]
 path = "contracts/milestone-manager.clar"
-epoch = "3.0"
-
-[contracts.refund-handler]
-path = "contracts/refund-handler.clar"
-epoch = "3.0"
+clarity_version = 4
+epoch = "3.3"
 
 [contracts.nft-rewards]
 path = "contracts/nft-rewards.clar"
-epoch = "3.0"
+clarity_version = 4
+epoch = "3.3"
+
+[contracts.refund-handler]
+path = "contracts/refund-handler.clar"
+clarity_version = 4
+epoch = "3.3"
 
 [repl.analysis]
 passes = ["check_checker"]

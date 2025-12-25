@@ -1,6 +1,6 @@
-;; FundotStacks - Refund Handler Contract
-;; Manages automatic refund processing for failed or cancelled campaigns
-;; clarity-version: 4
+;; FundotStacks - Refund Handler Contract (Clarity 4)
+;; Manages refund tracking for failed or cancelled campaigns
+;; NO CUSTODY - Creator must manually refund, contract only tracks state
 
 ;; Constants
 (define-constant err-not-found (err u301))
@@ -8,6 +8,7 @@
 (define-constant err-no-contribution (err u303))
 (define-constant err-already-refunded (err u304))
 (define-constant err-refund-failed (err u305))
+(define-constant err-unauthorized (err u306))
 
 ;; Data Maps
 (define-map refund-processed
@@ -17,8 +18,8 @@
 
 ;; Public Functions
 
-;; Process refund for a single backer
-(define-public (process-refund 
+;; Mark refund as processed (called by creator after manual refund)
+(define-public (mark-refund-processed 
     (campaign-id uint) 
     (backer principal)
     (contribution-amount uint)
@@ -37,9 +38,6 @@
       err-already-refunded
     )
     
-    ;; Transfer STX back to backer
-    (try! (as-contract (stx-transfer? contribution-amount tx-sender backer)))
-    
     ;; Mark as processed
     (map-set refund-processed
       { campaign-id: campaign-id, backer: backer }
@@ -52,36 +50,13 @@
     
     ;; Emit event
     (print {
-      event: "refund-processed",
+      event: "refund-marked-processed",
       campaign-id: campaign-id,
       backer: backer,
       amount: contribution-amount
     })
     
     (ok contribution-amount)
-  )
-)
-
-;; Batch process refunds (for campaigns with few backers)
-(define-public (batch-process-refunds 
-    (campaign-id uint)
-    (backers (list 50 { backer: principal, amount: uint }))
-  )
-  (begin
-    (map process-single-refund backers)
-    (ok (len backers))
-  )
-)
-
-;; Private helper for batch processing
-(define-private (process-single-refund (backer-data { backer: principal, amount: uint }))
-  (match (process-refund 
-    u0 ;; campaign-id would be passed from context
-    (get backer backer-data)
-    (get amount backer-data)
-  )
-    success true
-    error false
   )
 )
 

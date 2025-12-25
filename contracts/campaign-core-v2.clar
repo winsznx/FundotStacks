@@ -4,18 +4,12 @@
 
 ;; Constants
 (define-constant contract-owner tx-sender)
-(define-constant err-owner-only (err u100))
-(define-constant err-not-found (err u101))
-(define-constant err-unauthorized (err u102))
-(define-constant err-invalid-amount (err u103))
-(define-constant err-invalid-deadline (err u104))
-(define-constant err-campaign-ended (err u105))
-(define-constant err-campaign-not-active (err u106))
-(define-constant err-already-funded (err u107))
-(define-constant err-not-creator (err u108))
-(define-constant err-invalid-status (err u109))
-(define-constant err-invalid-title (err u110))
-(define-constant err-invalid-description (err u111))
+
+;; Simplified error constants to avoid VM naming conflicts
+(define-constant ERR-UNAUTHORIZED (err u100))
+(define-constant ERR-NOT-FOUND (err u101))
+(define-constant ERR-INVALID-PARAMS (err u102))
+(define-constant ERR-INVALID-STATUS (err u103))
 
 ;; Campaign status constants
 (define-constant STATUS-ACTIVE u1)
@@ -104,10 +98,10 @@
       (creator-index (increment-creator-campaign-count creator))
     )
     ;; Validations
-    (asserts! (is-valid-title title) err-invalid-title)
-    (asserts! (is-valid-description description) err-invalid-description)
-    (asserts! (and (>= goal-amount MIN-GOAL) (<= goal-amount MAX-GOAL)) err-invalid-amount)
-    (asserts! (>= deadline (+ stacks-block-height MIN-DEADLINE-BLOCKS)) err-invalid-deadline)
+    (asserts! (is-valid-title title) ERR-INVALID-PARAMS)
+    (asserts! (is-valid-description description) ERR-INVALID-PARAMS)
+    (asserts! (and (>= goal-amount MIN-GOAL) (<= goal-amount MAX-GOAL)) ERR-INVALID-PARAMS)
+    (asserts! (>= deadline (+ stacks-block-height MIN-DEADLINE-BLOCKS)) ERR-INVALID-PARAMS)
     
     ;; Create campaign
     (map-set campaigns
@@ -151,7 +145,7 @@
 (define-public (fund-campaign (campaign-id uint) (amount uint))
   (let
     (
-      (campaign (unwrap! (map-get? campaigns { campaign-id: campaign-id }) err-not-found))
+      (campaign (unwrap! (map-get? campaigns { campaign-id: campaign-id }) ERR-NOT-FOUND))
       (backer tx-sender)
       (current-contribution (default-to { amount: u0, timestamp: u0 } 
         (map-get? contributions { campaign-id: campaign-id, backer: backer })))
@@ -159,9 +153,9 @@
       (new-status (if (>= new-raised (get goal-amount campaign)) STATUS-FUNDED (get status campaign)))
     )
     ;; Validations
-    (asserts! (> amount u0) err-invalid-amount)
-    (asserts! (is-eq (get status campaign) STATUS-ACTIVE) err-campaign-not-active)
-    (asserts! (<= stacks-block-height (get deadline campaign)) err-campaign-ended)
+    (asserts! (> amount u0) ERR-INVALID-PARAMS)
+    (asserts! (is-eq (get status campaign) STATUS-ACTIVE) ERR-INVALID-STATUS)
+    (asserts! (<= stacks-block-height (get deadline campaign)) ERR-INVALID-STATUS)
     
     ;; Transfer STX DIRECTLY from backer to creator (no contract custody!)
     (try! (stx-transfer? amount backer (get creator campaign)))
@@ -202,11 +196,11 @@
 (define-public (complete-campaign (campaign-id uint))
   (let
     (
-      (campaign (unwrap! (map-get? campaigns { campaign-id: campaign-id }) err-not-found))
+      (campaign (unwrap! (map-get? campaigns { campaign-id: campaign-id }) ERR-NOT-FOUND))
     )
     ;; Validations
-    (asserts! (is-eq tx-sender (get creator campaign)) err-not-creator)
-    (asserts! (is-eq (get status campaign) STATUS-FUNDED) err-invalid-status)
+    (asserts! (is-eq tx-sender (get creator campaign)) ERR-UNAUTHORIZED)
+    (asserts! (is-eq (get status campaign) STATUS-FUNDED) ERR-INVALID-STATUS)
     
     ;; Update status
     (map-set campaigns
@@ -229,12 +223,12 @@
 (define-public (cancel-campaign (campaign-id uint))
   (let
     (
-      (campaign (unwrap! (map-get? campaigns { campaign-id: campaign-id }) err-not-found))
+      (campaign (unwrap! (map-get? campaigns { campaign-id: campaign-id }) ERR-NOT-FOUND))
     )
     ;; Validations
-    (asserts! (is-eq tx-sender (get creator campaign)) err-not-creator)
-    (asserts! (is-eq (get status campaign) STATUS-ACTIVE) err-invalid-status)
-    (asserts! (> stacks-block-height (get deadline campaign)) err-campaign-not-active)
+    (asserts! (is-eq tx-sender (get creator campaign)) ERR-UNAUTHORIZED)
+    (asserts! (is-eq (get status campaign) STATUS-ACTIVE) ERR-INVALID-STATUS)
+    (asserts! (> stacks-block-height (get deadline campaign)) ERR-INVALID-STATUS)
     
     ;; Update status
     (map-set campaigns
