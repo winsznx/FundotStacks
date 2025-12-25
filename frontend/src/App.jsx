@@ -16,6 +16,9 @@ import { Dashboard } from './pages/Dashboard.jsx';
 import { Profile } from './pages/Profile.jsx';
 import './styles/globals.css';
 
+// Initialize Reown AppKit for Bitcoin wallet support
+import './config/reown.js';
+
 const queryClient = new QueryClient();
 
 function App() {
