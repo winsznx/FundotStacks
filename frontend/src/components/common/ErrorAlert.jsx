@@ -1,11 +1,14 @@
-/**
- * Error Alert / Toast
- * Shows a friendly message plus optional retry
- */
+import { cn } from '@/lib/cn'
 
-export function ErrorAlert({ message = 'Something went wrong', onRetry = null }) {
+export function ErrorAlert({ message = 'Something went wrong', onRetry = null, className }) {
     return (
-        <div className="card border-red-300 dark:border-red-700 bg-red-50 dark:bg-red-900/40 text-red-900 dark:text-red-100 p-6 space-y-3">
+        <div
+            role="alert"
+            className={cn(
+                'card border-red-300 dark:border-red-700 bg-red-50 dark:bg-red-900/40 text-red-900 dark:text-red-100 p-6 space-y-3',
+                className,
+            )}
+        >
             <div className="flex items-center gap-3">
                 <div className="w-2 h-8 bg-red-500 rounded-full"></div>
                 <p className="font-semibold text-lg">Uh oh, something broke</p>
@@ -22,5 +25,5 @@ export function ErrorAlert({ message = 'Something went wrong', onRetry = null })
                 </button>
             )}
         </div>
-    );
+    )
 }
