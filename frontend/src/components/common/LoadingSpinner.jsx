@@ -1,22 +1,19 @@
-/**
- * Loading Spinner Component
- * Animated loading indicator
- */
+import { cn } from '@/lib/cn'
 
-export function LoadingSpinner({ size = 'md', text = null }) {
-    const sizeClasses = {
-        sm: 'w-4 h-4',
-        md: 'w-8 h-8',
-        lg: 'w-12 h-12',
-        xl: 'w-16 h-16'
-    };
+const sizeClasses = {
+    sm: 'w-4 h-4',
+    md: 'w-8 h-8',
+    lg: 'w-12 h-12',
+    xl: 'w-16 h-16',
+}
 
-    const label = text || 'Loading...';
+export function LoadingSpinner({ size = 'md', text = null, className }) {
+    const label = text || 'Loading...'
 
     return (
-        <div className="flex flex-col items-center justify-center gap-3" aria-live="polite">
+        <div className={cn('flex flex-col items-center justify-center gap-3', className)} aria-live="polite">
             <div
-                className={`${sizeClasses[size]} relative`}
+                className={cn(sizeClasses[size], 'relative')}
                 role="status"
                 aria-label={label}
             >
@@ -30,5 +27,5 @@ export function LoadingSpinner({ size = 'md', text = null }) {
                 </p>
             )}
         </div>
-    );
+    )
 }
