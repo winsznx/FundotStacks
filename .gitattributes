@@ -1,3 +1,15 @@
-tests/** linguist-vendored
-vitest.config.ts linguist-vendored
-* text=lf
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+
+*.clar text eol=lf
+*.toml text eol=lf
+*.md text eol=lf
+*.jsx text eol=lf
+*.js text eol=lf
+*.json text eol=lf
