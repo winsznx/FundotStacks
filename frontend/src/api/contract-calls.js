@@ -17,10 +17,26 @@ import { getStacksNetwork } from './stacks-client.js';
 import { CAMPAIGN_CORE } from './contract-config.js';
 
 /**
+ * @typedef {Object} CampaignData
+ * @property {string} title - Campaign title
+ * @property {string} description - Campaign description
+ * @property {number} goalAmount - Goal amount in STX
+ * @property {number} deadline - Deadline block height
+ * @property {boolean} [milestonesEnabled] - Whether milestones are enabled
+ */
+
+/**
  * Create a new campaign
+ * @param {CampaignData} campaignData - The data for the new campaign
+ * @param {string} userAddress - The Stacks address of the creator
+ * @returns {Promise<any>}
  */
 export async function createCampaign(campaignData, userAddress) {
     const { title, description, goalAmount, deadline, milestonesEnabled } = campaignData;
+
+    if (!title || !description || !goalAmount || !deadline) {
+        throw new Error('Missing required campaign data');
+    }
 
     const functionArgs = [
         stringAsciiCV(title),
@@ -39,11 +55,9 @@ export async function createCampaign(campaignData, userAddress) {
         postConditionMode: PostConditionMode.Deny,
         postConditions: [],
         onFinish: (data) => {
-            console.log('Campaign created:', data);
             return data;
         },
         onCancel: () => {
-            console.log('Transaction cancelled by user');
             throw new Error('User cancelled transaction');
         }
     };
@@ -53,8 +67,16 @@ export async function createCampaign(campaignData, userAddress) {
 
 /**
  * Fund a campaign
+ * @param {number|string} campaignId - The ID of the campaign to fund
+ * @param {number} amount - The amount in STX to fund
+ * @param {string} userAddress - The Stacks address of the backer
+ * @returns {Promise<any>}
  */
 export async function fundCampaign(campaignId, amount, userAddress) {
+    if (!campaignId || !amount || !userAddress) {
+        throw new Error('Missing required funding parameters');
+    }
+
     const amountMicroStx = BigInt(Math.floor(amount * 1000000));
 
     const functionArgs = [
@@ -80,7 +102,6 @@ export async function fundCampaign(campaignId, amount, userAddress) {
         postConditionMode: PostConditionMode.Deny,
         postConditions,
         onFinish: (data) => {
-            console.log('Funding successful:', data);
             return data;
         },
         onCancel: () => {
@@ -93,8 +114,12 @@ export async function fundCampaign(campaignId, amount, userAddress) {
 
 /**
  * Complete campaign (mark as completed - funds already with creator)
+ * @param {number|string} campaignId - The ID of the campaign to complete
+ * @returns {Promise<any>}
  */
 export async function completeCampaign(campaignId) {
+    if (!campaignId) throw new Error('Campaign ID is required');
+
     const functionArgs = [
         uintCV(BigInt(campaignId))
     ];
@@ -108,7 +133,6 @@ export async function completeCampaign(campaignId) {
         postConditionMode: PostConditionMode.Deny,
         postConditions: [],
         onFinish: (data) => {
-            console.log('Campaign completed:', data);
             return data;
         },
         onCancel: () => {
@@ -121,8 +145,12 @@ export async function completeCampaign(campaignId) {
 
 /**
  * Cancel campaign
+ * @param {number|string} campaignId - The ID of the campaign to cancel
+ * @returns {Promise<any>}
  */
 export async function cancelCampaign(campaignId) {
+    if (!campaignId) throw new Error('Campaign ID is required');
+
     const functionArgs = [
         uintCV(BigInt(campaignId))
     ];
@@ -136,7 +164,6 @@ export async function cancelCampaign(campaignId) {
         postConditionMode: PostConditionMode.Deny,
         postConditions: [],
         onFinish: (data) => {
-            console.log('Campaign cancelled:', data);
             return data;
         },
         onCancel: () => {
