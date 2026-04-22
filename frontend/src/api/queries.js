@@ -8,9 +8,33 @@ import { getStacksNetwork, API_URL } from './stacks-client.js';
 import { CAMPAIGN_CORE } from './contract-config.js';
 
 /**
+ * @typedef {Object} Campaign
+ * @property {number|string} id - Campaign ID
+ * @property {string} creator - Stacks address of the creator
+ * @property {string} title - Campaign title
+ * @property {string} description - Campaign description
+ * @property {number} goalAmount - Goal in STX
+ * @property {number} raisedAmount - Amount raised in STX
+ * @property {number} deadline - Deadline block height
+ * @property {number} status - Campaign status code
+ * @property {boolean} milestonesEnabled - Whether milestones are enabled
+ * @property {number} createdAt - Creation block height
+ */
+
+/**
+ * @typedef {Object} Contribution
+ * @property {number} amount - Amount contributed in STX
+ * @property {number} timestamp - Contribution block height
+ */
+
+/**
  * Get campaign details by ID
+ * @param {number|string} campaignId 
+ * @returns {Promise<Campaign|null>}
  */
 export async function getCampaignDetails(campaignId) {
+    if (!campaignId) throw new Error('Campaign ID is required');
+
     try {
         const result = await callReadOnlyFunction({
             contractAddress: CAMPAIGN_CORE.address,
@@ -41,15 +65,22 @@ export async function getCampaignDetails(campaignId) {
 
         return null;
     } catch (error) {
-        console.error('Error fetching campaign:', error);
-        throw error;
+        console.error(`Error fetching campaign ${campaignId}:`, error);
+        return null;
     }
 }
 
 /**
  * Get user's contribution to a campaign
+ * @param {number|string} campaignId 
+ * @param {string} backerAddress 
+ * @returns {Promise<Contribution|null>}
  */
 export async function getContribution(campaignId, backerAddress) {
+    if (!campaignId || !backerAddress) {
+        throw new Error('Campaign ID and Backer Address are required');
+    }
+
     try {
         const result = await callReadOnlyFunction({
             contractAddress: CAMPAIGN_CORE.address,
@@ -72,13 +103,14 @@ export async function getContribution(campaignId, backerAddress) {
 
         return null;
     } catch (error) {
-        console.error('Error fetching contribution:', error);
-        throw error;
+        console.error(`Error fetching contribution for campaign ${campaignId}:`, error);
+        return null;
     }
 }
 
 /**
  * Get total number of campaigns
+ * @returns {Promise<number>}
  */
 export async function getTotalCampaigns() {
     try {
@@ -92,35 +124,33 @@ export async function getTotalCampaigns() {
         });
 
         const jsonResult = cvToJSON(result);
-        return parseInt(jsonResult.value.value);
+        return parseInt(jsonResult.value.value) || 0;
     } catch (error) {
         console.error('Error fetching total campaigns:', error);
-        throw error;
+        return 0;
     }
 }
 
 /**
  * Get all campaigns (fetches by iterating from 1 to total)
+ * @returns {Promise<Campaign[]>}
  */
 export async function getAllCampaigns() {
     try {
         const total = await getTotalCampaigns();
+        if (total === 0) return [];
+
         const campaigns = [];
+        const promises = [];
 
         for (let i = 1; i <= total; i++) {
-            try {
-                const campaign = await getCampaignDetails(i);
-                if (campaign) {
-                    campaigns.push(campaign);
-                }
-            } catch (e) {
-                console.error(`Error fetching campaign ${i}:`, e);
-            }
+            promises.push(getCampaignDetails(i));
         }
 
-        return campaigns;
+        const results = await Promise.all(promises);
+        return results.filter(Boolean);
     } catch (error) {
         console.error('Error fetching all campaigns:', error);
-        throw error;
+        return [];
     }
 }
