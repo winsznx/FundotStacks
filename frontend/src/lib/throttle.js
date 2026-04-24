@@ -1,38 +1,21 @@
-export function throttle(fn, wait = 200) {
-  let last = 0
-  let timer = null
-  let pendingArgs = null
+/**
+ * Timing Utilities - Throttle
+ */
 
-  const invoke = () => {
-    last = Date.now()
-    timer = null
-    if (pendingArgs) {
-      const args = pendingArgs
-      pendingArgs = null
-      fn(...args)
+/**
+ * Creates a throttled version of a function
+ * @param {Function} func 
+ * @param {number} limit 
+ * @returns {Function}
+ */
+export function throttle(func, limit = 300) {
+  let inThrottle;
+  return function(...args) {
+    const context = this;
+    if (!inThrottle) {
+      func.apply(context, args);
+      inThrottle = true;
+      setTimeout(() => inThrottle = false, limit);
     }
-  }
-
-  const throttled = (...args) => {
-    const now = Date.now()
-    const remaining = wait - (now - last)
-    if (remaining <= 0) {
-      last = now
-      fn(...args)
-      return
-    }
-    pendingArgs = args
-    if (timer === null) {
-      timer = setTimeout(invoke, remaining)
-    }
-  }
-
-  throttled.cancel = () => {
-    if (timer !== null) clearTimeout(timer)
-    timer = null
-    pendingArgs = null
-    last = 0
-  }
-
-  return throttled
+  };
 }
