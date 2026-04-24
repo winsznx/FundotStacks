@@ -1,16 +1,28 @@
-export function safeJsonParse(value, fallback = null) {
-  if (typeof value !== 'string') return fallback
+/**
+ * Robust JSON Utilities
+ */
+
+/**
+ * Safely parses JSON string
+ */
+export function safeParse(json, fallback = null) {
+  if (typeof json !== 'string') return fallback;
   try {
-    return JSON.parse(value)
-  } catch {
-    return fallback
+    return JSON.parse(json);
+  } catch (e) {
+    console.error('JSON parse error:', e);
+    return fallback;
   }
 }
 
-export function safeJsonStringify(value, fallback = '') {
+/**
+ * Safely stringifies object
+ */
+export function safeStringify(data, fallback = '') {
   try {
-    return JSON.stringify(value)
-  } catch {
-    return fallback
+    return JSON.stringify(data);
+  } catch (e) {
+    console.error('JSON stringify error:', e);
+    return fallback;
   }
 }
