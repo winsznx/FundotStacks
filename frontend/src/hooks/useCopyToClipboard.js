@@ -1,17 +1,27 @@
-import { useCallback, useState } from 'react'
-import { copyToClipboard } from '@/lib/clipboard'
+/**
+ * Custom Hook - Copy to Clipboard
+ */
 
-export function useCopyToClipboard(resetMs = 1500) {
-  const [copied, setCopied] = useState(false)
+import { useState, useCallback, useEffect } from 'react';
+import { copyToClipboard } from '../lib/clipboard.js';
 
-  const copy = useCallback(async (value) => {
-    const ok = await copyToClipboard(value)
-    if (ok) {
-      setCopied(true)
-      if (resetMs > 0) setTimeout(() => setCopied(false), resetMs)
+export function useCopyToClipboard(resetTimeout = 2000) {
+  const [isCopied, setIsCopied] = useState(false);
+
+  const copy = useCallback(async (text) => {
+    const success = await copyToClipboard(text);
+    if (success) {
+      setIsCopied(true);
     }
-    return ok
-  }, [resetMs])
+    return success;
+  }, []);
 
-  return { copied, copy }
+  useEffect(() => {
+    if (isCopied && resetTimeout > 0) {
+      const timer = setTimeout(() => setIsCopied(false), resetTimeout);
+      return () => clearTimeout(timer);
+    }
+  }, [isCopied, resetTimeout]);
+
+  return { isCopied, copy };
 }
