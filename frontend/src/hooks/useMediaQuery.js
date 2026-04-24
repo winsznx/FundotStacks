@@ -1,21 +1,27 @@
-import { useEffect, useState } from 'react'
+/**
+ * Custom Hook - Responsive Media Queries
+ */
 
-function getMatch(query) {
-  if (typeof window === 'undefined' || !window.matchMedia) return false
-  return window.matchMedia(query).matches
-}
+import { useState, useEffect } from 'react';
 
 export function useMediaQuery(query) {
-  const [matches, setMatches] = useState(() => getMatch(query))
+  const [matches, setMatches] = useState(false);
 
   useEffect(() => {
-    if (typeof window === 'undefined' || !window.matchMedia) return
-    const mql = window.matchMedia(query)
-    const onChange = (event) => setMatches(event.matches)
-    setMatches(mql.matches)
-    mql.addEventListener('change', onChange)
-    return () => mql.removeEventListener('change', onChange)
-  }, [query])
+    const media = window.matchMedia(query);
+    if (media.matches !== matches) {
+      setMatches(media.matches);
+    }
 
-  return matches
+    const listener = () => setMatches(media.matches);
+    media.addEventListener('change', listener);
+
+    return () => media.removeEventListener('change', listener);
+  }, [matches, query]);
+
+  return matches;
 }
+
+export const useIsMobile = () => useMediaQuery('(max-width: 768px)');
+export const useIsTablet = () => useMediaQuery('(max-width: 1024px)');
+export const useIsDesktop = () => useMediaQuery('(min-width: 1025px)');
