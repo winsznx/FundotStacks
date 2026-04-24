@@ -1,12 +1,21 @@
-import { useEffect } from 'react'
+/**
+ * Custom Hook - Document Title Management
+ */
 
-export function useDocumentTitle(title) {
+import { useEffect, useRef } from 'react';
+
+export function useDocumentTitle(title, retainOnUnmount = false) {
+  const defaultTitle = useRef(document.title);
+
   useEffect(() => {
-    if (typeof document === 'undefined' || !title) return
-    const previous = document.title
-    document.title = title
+    document.title = title ? `${title} | FundotStacks` : 'FundotStacks';
+  }, [title]);
+
+  useEffect(() => {
     return () => {
-      document.title = previous
-    }
-  }, [title])
+      if (!retainOnUnmount) {
+        document.title = defaultTitle.current;
+      }
+    };
+  }, [retainOnUnmount]);
 }
