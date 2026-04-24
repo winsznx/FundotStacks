@@ -1,12 +1,21 @@
-import { useEffect, useState } from 'react'
+/**
+ * Custom Hook - Value Debouncing
+ */
 
-export function useDebounce(value, delay = 300) {
-  const [debounced, setDebounced] = useState(value)
+import { useState, useEffect } from 'react';
+
+export function useDebounce(value, delay = 500) {
+  const [debouncedValue, setDebouncedValue] = useState(value);
 
   useEffect(() => {
-    const id = setTimeout(() => setDebounced(value), delay)
-    return () => clearTimeout(id)
-  }, [value, delay])
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
 
-  return debounced
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
 }
