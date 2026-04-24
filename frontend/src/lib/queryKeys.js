@@ -1,23 +1,25 @@
+/**
+ * React Query Key Factory
+ */
+
 export const campaignKeys = {
   all: ['campaigns'],
   lists: () => [...campaignKeys.all, 'list'],
-  detail: (id) => [...campaignKeys.all, 'detail', id],
-  contribution: (id, backer) => [...campaignKeys.all, 'contribution', id, backer],
-}
+  list: (filters) => [...campaignKeys.lists(), { filters }],
+  details: () => [...campaignKeys.all, 'detail'],
+  detail: (id) => [...campaignKeys.details(), id],
+  contributions: () => [...campaignKeys.all, 'contribution'],
+  contribution: (id, backer) => [...campaignKeys.contributions(), { id, backer }],
+};
 
 export const milestoneKeys = {
   all: ['milestones'],
-  byCampaign: (campaignId) => [...milestoneKeys.all, 'campaign', campaignId],
-  detail: (campaignId, milestoneId) => [...milestoneKeys.all, 'detail', campaignId, milestoneId],
-}
+  config: (id) => [...milestoneKeys.all, 'config', id],
+  list: (id) => [...milestoneKeys.all, 'list', id],
+};
 
 export const nftKeys = {
-  all: ['nft'],
-  backer: (campaignId, address) => [...nftKeys.all, 'backer', campaignId, address],
-  owned: (address) => [...nftKeys.all, 'owned', address],
-}
-
-export const refundKeys = {
-  all: ['refunds'],
-  status: (campaignId, address) => [...refundKeys.all, 'status', campaignId, address],
-}
+  all: ['nfts'],
+  backer: (campaignId, backer) => [...nftKeys.all, 'backer', { campaignId, backer }],
+  uri: (tokenId) => [...nftKeys.all, 'uri', tokenId],
+};
