@@ -1,20 +1,46 @@
-const MAINNET_BASE = 'https://explorer.hiro.so'
-const TESTNET_SUFFIX = '?chain=testnet'
+/**
+ * Stacks Explorer Link Utilities
+ */
 
-function suffix(network) {
-  return network === 'mainnet' ? '' : TESTNET_SUFFIX
+import { EXPLORER_URL } from '../api/stacks-client.js';
+
+/**
+ * Generates explorer URL for an address
+ */
+export function getAddressUrl(address) {
+  if (!address) return '';
+  return `${EXPLORER_URL}/address/${address}`;
 }
 
-export function buildExplorerTxUrl(txId, network = 'testnet') {
-  if (!txId) return MAINNET_BASE
-  return `${MAINNET_BASE}/txid/${txId}${suffix(network)}`
+/**
+ * Generates explorer URL for a transaction ID
+ */
+export function getTxUrl(txId) {
+  if (!txId) return '';
+  return `${EXPLORER_URL}/txid/${txId}`;
 }
 
-export function buildExplorerAddressUrl(address, network = 'testnet') {
-  if (!address) return MAINNET_BASE
-  return `${MAINNET_BASE}/address/${address}${suffix(network)}`
+/**
+ * Generates explorer URL for a contract principal
+ */
+export function getContractUrl(contractId) {
+  if (!contractId) return '';
+  return `${EXPLORER_URL}/contract/${contractId}`;
 }
 
-export function buildExplorerBlockUrl(blockHeight, network = 'testnet') {
-  return `${MAINNET_BASE}/block/${blockHeight}${suffix(network)}`
+/**
+ * Opens explorer URL in a new tab
+ */
+export function openInExplorer(type, id) {
+  let url = '';
+  switch (type) {
+    case 'address': url = getAddressUrl(id); break;
+    case 'tx': url = getTxUrl(id); break;
+    case 'contract': url = getContractUrl(id); break;
+    default: break;
+  }
+  
+  if (url) {
+    window.open(url, '_blank', 'noopener,noreferrer');
+  }
 }
