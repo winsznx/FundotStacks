@@ -1,16 +1,20 @@
-import { useEffect, useRef } from 'react'
+/**
+ * Custom Hook - Declarative Intervals
+ */
+
+import { useEffect, useRef } from 'react';
 
 export function useInterval(callback, delay) {
-  const savedCallback = useRef(callback)
+  const savedCallback = useRef();
 
   useEffect(() => {
-    savedCallback.current = callback
-  }, [callback])
+    savedCallback.current = callback;
+  }, [callback]);
 
   useEffect(() => {
-    if (delay === null || delay === undefined) return
-    const tick = () => savedCallback.current()
-    const id = setInterval(tick, delay)
-    return () => clearInterval(id)
-  }, [delay])
+    if (delay !== null) {
+      const id = setInterval(() => savedCallback.current(), delay);
+      return () => clearInterval(id);
+    }
+  }, [delay]);
 }
