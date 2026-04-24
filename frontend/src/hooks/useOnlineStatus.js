@@ -1,24 +1,24 @@
-import { useEffect, useState } from 'react'
+/**
+ * Custom Hook - Online Status Tracking
+ */
 
-function getOnline() {
-  if (typeof navigator === 'undefined') return true
-  return navigator.onLine
-}
+import { useState, useEffect } from 'react';
 
 export function useOnlineStatus() {
-  const [online, setOnline] = useState(getOnline)
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
 
   useEffect(() => {
-    if (typeof window === 'undefined') return
-    const on = () => setOnline(true)
-    const off = () => setOnline(false)
-    window.addEventListener('online', on)
-    window.addEventListener('offline', off)
-    return () => {
-      window.removeEventListener('online', on)
-      window.removeEventListener('offline', off)
-    }
-  }, [])
+    const setOnline = () => setIsOnline(true);
+    const setOffline = () => setIsOnline(false);
 
-  return online
+    window.addEventListener('online', setOnline);
+    window.addEventListener('offline', setOffline);
+
+    return () => {
+      window.removeEventListener('online', setOnline);
+      window.removeEventListener('offline', setOffline);
+    };
+  }, []);
+
+  return isOnline;
 }
