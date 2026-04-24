@@ -1,27 +1,38 @@
-const STX_ADDRESS_RE = /^S[PTMN][0-9A-HJ-NP-Z]{38,40}$/
-const BTC_BECH32_RE = /^(bc1|tb1)[0-9ac-hj-np-z]{20,87}$/
-const BTC_LEGACY_RE = /^[13mn2][a-km-zA-HJ-NP-Z1-9]{25,39}$/
-const TX_ID_RE = /^(0x)?[0-9a-fA-F]{64}$/
+/**
+ * Schema and Logic Validation
+ */
 
-export function isStxAddress(value) {
-  return typeof value === 'string' && STX_ADDRESS_RE.test(value)
+/**
+ * Basic email validator
+ */
+export function isValidEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
-export function isBtcAddress(value) {
-  if (typeof value !== 'string') return false
-  return BTC_BECH32_RE.test(value) || BTC_LEGACY_RE.test(value)
+/**
+ * Validates if a string is a valid URL
+ */
+export function isValidUrl(url) {
+  try {
+    new URL(url);
+    return true;
+  } catch (e) {
+    return false;
+  }
 }
 
-export function isTxId(value) {
-  return typeof value === 'string' && TX_ID_RE.test(value)
+/**
+ * Checks if value is within range
+ */
+export function isInRange(value, min, max) {
+  const n = Number(value);
+  return !isNaN(n) && n >= min && n <= max;
 }
 
-export function isPositiveNumber(value) {
-  const n = Number(value)
-  return Number.isFinite(n) && n > 0
-}
-
-export function isNonNegativeInteger(value) {
-  const n = Number(value)
-  return Number.isInteger(n) && n >= 0
+/**
+ * Checks if string meets minimum complexity
+ */
+export function isComplexString(str, minLength = 8) {
+  if (!str || str.length < minLength) return false;
+  return /[A-Z]/.test(str) && /[0-9]/.test(str);
 }
