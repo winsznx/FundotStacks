@@ -1,9 +1,9 @@
 /**
  * Custom Hook - Campaign Data Fetching
- * Uses React Query for efficient caching and updates
  */
 
 import { useQuery } from '@tanstack/react-query';
+import { useCallback } from 'react';
 import { getAllCampaigns, getCampaignDetails, getContribution } from '../api/queries.js';
 import { useCampaignStore } from '../store/campaignStore.js';
 import { campaignKeys } from '../lib/queryKeys.js';
