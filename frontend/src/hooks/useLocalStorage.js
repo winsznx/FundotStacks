@@ -1,27 +1,29 @@
-import { useCallback, useEffect, useState } from 'react'
-import { safeJsonParse, safeJsonStringify } from '@/lib/safeJson'
+/**
+ * Custom Hook - LocalStorage Management
+ */
 
-function readInitial(key, fallback) {
-  if (typeof window === 'undefined') return fallback
-  const raw = window.localStorage.getItem(key)
-  if (raw === null) return fallback
-  const parsed = safeJsonParse(raw, undefined)
-  return parsed === undefined ? fallback : parsed
-}
+import { useState, useCallback } from 'react';
 
 export function useLocalStorage(key, initialValue) {
-  const [value, setValue] = useState(() => readInitial(key, initialValue))
+  const [storedValue, setStoredValue] = useState(() => {
+    try {
+      const item = window.localStorage.getItem(key);
+      return item ? JSON.parse(item) : initialValue;
+    } catch (error) {
+      console.error('LocalStorage read error:', error);
+      return initialValue;
+    }
+  });
 
-  useEffect(() => {
-    if (typeof window === 'undefined') return
-    window.localStorage.setItem(key, safeJsonStringify(value))
-  }, [key, value])
+  const setValue = useCallback((value) => {
+    try {
+      const valueToStore = value instanceof Function ? value(storedValue) : value;
+      setStoredValue(valueToStore);
+      window.localStorage.setItem(key, JSON.stringify(valueToStore));
+    } catch (error) {
+      console.error('LocalStorage write error:', error);
+    }
+  }, [key, storedValue]);
 
-  const remove = useCallback(() => {
-    if (typeof window === 'undefined') return
-    window.localStorage.removeItem(key)
-    setValue(initialValue)
-  }, [key, initialValue])
-
-  return [value, setValue, remove]
+  return [storedValue, setValue];
 }
