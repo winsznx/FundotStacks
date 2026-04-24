@@ -1,12 +1,33 @@
-import { useEffect } from 'react'
+/**
+ * Custom Hook - Key Press Detection
+ */
 
-export function useKeyPress(targetKey, handler, { event = 'keydown' } = {}) {
-  useEffect(() => {
-    if (!handler) return
-    const listener = (e) => {
-      if (e.key === targetKey) handler(e)
+import { useState, useEffect, useCallback } from 'react';
+
+export function useKeyPress(targetKey) {
+  const [keyPressed, setKeyPressed] = useState(false);
+
+  const downHandler = useCallback(({ key }) => {
+    if (key === targetKey) {
+      setKeyPressed(true);
     }
-    window.addEventListener(event, listener)
-    return () => window.removeEventListener(event, listener)
-  }, [targetKey, handler, event])
+  }, [targetKey]);
+
+  const upHandler = useCallback(({ key }) => {
+    if (key === targetKey) {
+      setKeyPressed(false);
+    }
+  }, [targetKey]);
+
+  useEffect(() => {
+    window.addEventListener('keydown', downHandler);
+    window.addEventListener('keyup', upHandler);
+
+    return () => {
+      window.removeEventListener('keydown', downHandler);
+      window.removeEventListener('keyup', upHandler);
+    };
+  }, [downHandler, upHandler]);
+
+  return keyPressed;
 }
