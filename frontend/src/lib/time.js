@@ -1,41 +1,32 @@
-import { STACKS_BLOCK_TIME_MS, MINUTE_MS, HOUR_MS, DAY_MS } from '@/constants/time'
+/**
+ * Time and Block Estimation Utilities
+ */
 
-export function blocksToMs(blocks) {
-  return blocks * STACKS_BLOCK_TIME_MS
+import { STACKS_BLOCK_TIME_MS } from '../constants/time.js';
+
+/**
+ * Formats milliseconds into a human-readable duration
+ */
+export function formatDuration(ms) {
+  if (ms <= 0) return 'Expired';
+  
+  const seconds = Math.floor((ms / 1000) % 60);
+  const minutes = Math.floor((ms / (1000 * 60)) % 60);
+  const hours = Math.floor((ms / (1000 * 60 * 60)) % 24);
+  const days = Math.floor(ms / (1000 * 60 * 60 * 24));
+
+  if (days > 0) return `${days}d ${hours}h`;
+  if (hours > 0) return `${hours}h ${minutes}m`;
+  if (minutes > 0) return `${minutes}m ${seconds}s`;
+  return `${seconds}s`;
 }
 
-export function blockHeightToRelative(targetBlock, currentBlock) {
-  const remaining = targetBlock - currentBlock
-  if (remaining <= 0) return 'Ended'
-  const ms = blocksToMs(remaining)
-  if (ms >= DAY_MS) {
-    const days = Math.floor(ms / DAY_MS)
-    return `${days} day${days > 1 ? 's' : ''}`
-  }
-  if (ms >= HOUR_MS) {
-    const hours = Math.floor(ms / HOUR_MS)
-    return `${hours} hour${hours > 1 ? 's' : ''}`
-  }
-  const minutes = Math.max(1, Math.floor(ms / MINUTE_MS))
-  return `${minutes} minute${minutes > 1 ? 's' : ''}`
-}
-
-export function formatDate(date, locale = 'en-US') {
-  if (!date) return ''
-  const d = date instanceof Date ? date : new Date(date)
-  if (Number.isNaN(d.getTime())) return ''
-  return d.toLocaleDateString(locale, { year: 'numeric', month: 'short', day: 'numeric' })
-}
-
-export function formatDateTime(date, locale = 'en-US') {
-  if (!date) return ''
-  const d = date instanceof Date ? date : new Date(date)
-  if (Number.isNaN(d.getTime())) return ''
-  return d.toLocaleString(locale, {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  })
+/**
+ * Calculates estimated countdown from current block to target block
+ */
+export function getBlockCountdown(targetBlock, currentBlock) {
+  if (!targetBlock || !currentBlock) return null;
+  const blocksLeft = targetBlock - currentBlock;
+  if (blocksLeft <= 0) return 0;
+  return blocksLeft * STACKS_BLOCK_TIME_MS;
 }
