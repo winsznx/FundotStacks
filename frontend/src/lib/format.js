@@ -1,63 +1,37 @@
-import { MICROSTX_PER_STX, SATS_PER_BTC, STX_DECIMALS, BTC_DECIMALS } from '@/constants/currency'
+/**
+ * Formatting Utilities
+ */
 
-const safeNumber = (value) => {
-  if (value === null || value === undefined) return 0
-  const n = typeof value === 'bigint' ? Number(value) : Number(value)
-  return Number.isFinite(n) ? n : 0
+/**
+ * Formats a timestamp into a readable date
+ */
+export function formatDate(timestamp, options = {}) {
+  if (!timestamp) return '';
+  
+  const date = new Date(typeof timestamp === 'number' && timestamp < 1e12 ? timestamp * 1000 : timestamp);
+  
+  return new Intl.DateTimeFormat('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+    ...options
+  }).format(date);
 }
 
-export function formatSTX(amount, decimals = 2) {
-  return `${safeNumber(amount).toLocaleString('en-US', {
-    minimumFractionDigits: decimals,
-    maximumFractionDigits: decimals,
-  })} STX`
+/**
+ * Formats a block height into an estimated date based on current block
+ */
+export function formatBlockHeight(height, currentBlock) {
+  if (!height) return '';
+  if (!currentBlock) return `Block #${height}`;
+  
+  const blocksRemaining = height - currentBlock;
+  if (blocksRemaining <= 0) return 'Passed';
+  
+  // Stacks block time is ~10 mins
+  const minsRemaining = blocksRemaining * 10;
+  const days = Math.floor(minsRemaining / (24 * 60));
+  
+  if (days > 0) return `~${days} day${days > 1 ? 's' : ''} left`;
+  return `~${Math.floor(minsRemaining / 60)} hour${Math.floor(minsRemaining / 60) > 1 ? 's' : ''} left`;
 }
-
-export function formatBTC(amount, decimals = 4) {
-  return `${safeNumber(amount).toLocaleString('en-US', {
-    minimumFractionDigits: decimals,
-    maximumFractionDigits: decimals,
-  })} BTC`
-}
-
-export function formatSats(sats) {
-  return `${Math.round(safeNumber(sats)).toLocaleString('en-US')} sats`
-}
-
-export function formatUSD(amount, decimals = 2) {
-  return safeNumber(amount).toLocaleString('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: decimals,
-    maximumFractionDigits: decimals,
-  })
-}
-
-export function formatNumber(value, decimals = 0) {
-  return safeNumber(value).toLocaleString('en-US', {
-    minimumFractionDigits: decimals,
-    maximumFractionDigits: decimals,
-  })
-}
-
-export function formatPercent(value, decimals = 1) {
-  return `${safeNumber(value).toFixed(decimals)}%`
-}
-
-export function microSTXToSTX(micro) {
-  return safeNumber(micro) / MICROSTX_PER_STX
-}
-
-export function stxToMicroSTX(stx) {
-  return Math.round(safeNumber(stx) * MICROSTX_PER_STX)
-}
-
-export function satsToBTC(sats) {
-  return safeNumber(sats) / SATS_PER_BTC
-}
-
-export function btcToSats(btc) {
-  return Math.round(safeNumber(btc) * SATS_PER_BTC)
-}
-
-export { STX_DECIMALS, BTC_DECIMALS }
