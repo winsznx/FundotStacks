@@ -1,17 +1,31 @@
-export function debounce(fn, wait = 200) {
-  let timer = null
-  const debounced = (...args) => {
-    if (timer !== null) clearTimeout(timer)
-    timer = setTimeout(() => {
-      timer = null
-      fn(...args)
-    }, wait)
-  }
-  debounced.cancel = () => {
-    if (timer !== null) {
-      clearTimeout(timer)
-      timer = null
-    }
-  }
-  return debounced
+/**
+ * Timing Utilities - Debounce
+ */
+
+/**
+ * Creates a debounced version of a function
+ * @param {Function} func 
+ * @param {number} wait 
+ * @param {boolean} immediate 
+ * @returns {Function}
+ */
+export function debounce(func, wait = 300, immediate = false) {
+  let timeout;
+
+  return function executedFunction(...args) {
+    const context = this;
+
+    const later = function() {
+      timeout = null;
+      if (!immediate) func.apply(context, args);
+    };
+
+    const callNow = immediate && !timeout;
+
+    clearTimeout(timeout);
+
+    timeout = setTimeout(later, wait);
+
+    if (callNow) func.apply(context, args);
+  };
 }
