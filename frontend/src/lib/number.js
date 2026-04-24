@@ -1,22 +1,35 @@
-export function clamp(value, min, max) {
-  if (Number.isNaN(value)) return min
-  if (value < min) return min
-  if (value > max) return max
-  return value
+/**
+ * Numerical and Currency Formatting
+ */
+
+/**
+ * Formats a number as a currency string
+ */
+export function formatCurrency(amount, currency = 'STX', decimals = 2) {
+  const value = Number(amount || 0);
+  
+  const formatter = new Intl.NumberFormat('en-US', {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
+  });
+
+  return `${formatter.format(value)} ${currency}`;
 }
 
-export function range(start, end, step = 1) {
-  if (step === 0) return []
-  const out = []
-  if (step > 0) {
-    for (let i = start; i < end; i += step) out.push(i)
-  } else {
-    for (let i = start; i > end; i += step) out.push(i)
-  }
-  return out
+/**
+ * Formats large numbers with suffixes (K, M, B)
+ */
+export function formatCompactNumber(number) {
+  return new Intl.NumberFormat('en-US', {
+    notation: 'compact',
+    compactDisplay: 'short',
+  }).format(number);
 }
 
-export function percentage(numerator, denominator) {
-  if (!denominator) return 0
-  return Math.min((numerator / denominator) * 100, 100)
+/**
+ * Safely parses a number from string, returns fallback on failure
+ */
+export function parseNumber(value, fallback = 0) {
+  const parsed = Number(value);
+  return isNaN(parsed) ? fallback : parsed;
 }
