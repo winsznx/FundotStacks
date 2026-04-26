@@ -1,37 +1,35 @@
-import { cn } from '@/lib/cn'
+import React from 'react';
+import { cn } from '@/lib/cn';
 
-const sizeMap = {
-  sm: 'w-8 h-8 text-xs',
-  md: 'w-10 h-10 text-sm',
-  lg: 'w-14 h-14 text-base',
-  xl: 'w-20 h-20 text-xl',
-}
+/**
+ * Avatar component for user profile images or initials
+ */
+export const Avatar = React.forwardRef(({ src, alt, fallback, className, ...rest }, ref) => {
+  const [error, setError] = React.useState(false);
 
-function initialsFrom(name) {
-  if (!name) return '??'
-  return name.slice(0, 2).toUpperCase()
-}
-
-export function Avatar({ name, src, alt, size = 'md', className }) {
-  if (src) {
-    return (
-      <img
-        src={src}
-        alt={alt || name || 'avatar'}
-        className={cn('rounded-full object-cover', sizeMap[size], className)}
-      />
-    )
-  }
   return (
     <div
+      ref={ref}
       className={cn(
-        'rounded-full bg-gradient-to-br from-primary-400 to-primary-600 text-white flex items-center justify-center font-bold',
-        sizeMap[size],
-        className,
+        'relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full bg-secondary-100 dark:bg-secondary-800',
+        className
       )}
-      aria-label={alt || name || 'avatar'}
+      {...rest}
     >
-      {initialsFrom(name)}
+      {src && !error ? (
+        <img
+          src={src}
+          alt={alt}
+          onError={() => setError(true)}
+          className="aspect-square h-full w-full object-cover"
+        />
+      ) : (
+        <div className="flex h-full w-full items-center justify-center text-sm font-medium text-secondary-600 dark:text-secondary-400">
+          {fallback || alt?.charAt(0).toUpperCase() || '?'}
+        </div>
+      )}
     </div>
-  )
-}
+  );
+});
+
+Avatar.displayName = 'Avatar';
