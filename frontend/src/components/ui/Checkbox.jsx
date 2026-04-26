@@ -1,19 +1,32 @@
-import { forwardRef } from 'react'
-import { cn } from '@/lib/cn'
+import React from 'react';
+import { cn } from '@/lib/cn';
 
-export const Checkbox = forwardRef(function Checkbox(
-  { className, ...rest },
-  ref,
-) {
+/**
+ * Custom Checkbox component
+ */
+export const Checkbox = React.forwardRef(({ className, label, id, ...rest }, ref) => {
+  const generatedId = React.useId();
+  const checkboxId = id || generatedId;
+
   return (
-    <input
-      ref={ref}
-      type="checkbox"
-      className={cn(
-        'h-4 w-4 rounded border-secondary-300 dark:border-secondary-700 text-primary-500 focus:ring-primary-400',
-        className,
+    <div className="flex items-center gap-2">
+      <input
+        ref={ref}
+        id={checkboxId}
+        type="checkbox"
+        className={cn(
+          'h-4 w-4 rounded border-secondary-300 dark:border-secondary-700 text-primary-500 focus:ring-primary-400 transition-colors bg-white dark:bg-secondary-900',
+          className,
+        )}
+        {...rest}
+      />
+      {label && (
+        <label htmlFor={checkboxId} className="text-sm font-medium text-secondary-700 dark:text-secondary-300 cursor-pointer">
+          {label}
+        </label>
       )}
-      {...rest}
-    />
-  )
-})
+    </div>
+  );
+});
+
+Checkbox.displayName = 'Checkbox';
