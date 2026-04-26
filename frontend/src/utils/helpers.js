@@ -2,6 +2,49 @@
  * Miscellaneous Helper Functions
  */
 
+import { microStxToStx } from '../constants/currency.js';
+import { CAMPAIGN_STATUS_LABEL, CAMPAIGN_STATUS_COLOR } from '../constants/status.js';
+import { truncateAddress as truncate } from '../lib/address.js';
+
+/**
+ * Proxies to truncateAddress in lib/address.js for backward compatibility
+ */
+export const truncateAddress = truncate;
+
+/**
+ * Formats micro-STX amount to a readable STX string
+ */
+export function formatSTX(microStx, decimals = 2) {
+    const stx = microStxToStx(microStx);
+    return stx.toLocaleString(undefined, {
+        minimumFractionDigits: decimals,
+        maximumFractionDigits: decimals,
+    }) + ' STX';
+}
+
+/**
+ * Calculates progress percentage between raised and goal
+ */
+export function calculateProgress(raised, goal) {
+    if (!goal || goal <= 0) return 0;
+    const progress = (Number(raised) / Number(goal)) * 100;
+    return Math.min(progress, 100);
+}
+
+/**
+ * Gets the human-readable label for a status code
+ */
+export function getStatusLabel(status) {
+    return CAMPAIGN_STATUS_LABEL[status] || 'Unknown';
+}
+
+/**
+ * Gets the CSS color class for a status code
+ */
+export function getStatusColor(status) {
+    return CAMPAIGN_STATUS_COLOR[status] || 'bg-secondary-500';
+}
+
 /**
  * Prevents default event behavior
  */
